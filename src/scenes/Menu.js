@@ -5,6 +5,19 @@ class Menu extends Phaser.Scene {
     }
 
     preload() {
+        // Load assets
+        this.load.image('building', './assets/building.png')
+        this.load.image('titlescreen', './assets/titlescreen.png')
+        this.load.image('brick', './assets/brick.png')
+        //this.load.audio('bgm', './assets/bgm.mp3')
+        this.load.spritesheet('felix', './assets/felix.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+        })
+        this.load.spritesheet('window', './assets/window.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+        })
     }
 
     create() {

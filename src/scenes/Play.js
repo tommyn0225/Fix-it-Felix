@@ -5,7 +5,6 @@ class Play extends Phaser.Scene {
     }
 
     create() {
-        // Display play scene text to confirm it's active
         this.add.text(
             game.config.width / 2,
             game.config.height / 2,
