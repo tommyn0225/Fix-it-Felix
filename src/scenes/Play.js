@@ -100,3 +100,4 @@ class Play extends Phaser.Scene {
             this.felix.setVelocityY(-500);
         }
     }
+}
