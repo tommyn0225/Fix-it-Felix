@@ -1,4 +1,3 @@
-
 // src/scenes/Play.js
 class Play extends Phaser.Scene {
     constructor() {
@@ -27,16 +26,55 @@ class Play extends Phaser.Scene {
         ).setOrigin(0.5);
         this.physics.add.existing(this.floor, true);
 
+        this.platforms = [];
+
         // Platform 1
-        const platformY = 645;
-        this.platform = this.add.rectangle(
+        const platform1Y = 645;
+        let platform1 = this.add.rectangle(
             this.game.config.width / 2,
-            platformY,
-            600,
+            platform1Y,
+            610,
             30,
             0x8B4513
         ).setOrigin(0.5);
-        this.physics.add.existing(this.platform, true);
+        this.physics.add.existing(platform1, true);
+        this.platforms.push(platform1);
+
+        // Platform 2
+        const platform2Y = 500;
+        let platform2 = this.add.rectangle(
+            this.game.config.width / 2,
+            platform2Y,
+            610,
+            30,
+            0x8B4513
+        ).setOrigin(0.5);
+        this.physics.add.existing(platform2, true);
+        this.platforms.push(platform2);
+
+        // Platform 3
+        const platform3Y = 360;
+        let platform3 = this.add.rectangle(
+            this.game.config.width / 2,
+            platform3Y,
+            610,
+            30,
+            0x8B4513
+        ).setOrigin(0.5);
+        this.physics.add.existing(platform3, true);
+        this.platforms.push(platform3);
+
+        // Platform 4
+        const platform4Y = 200;
+        let platform4 = this.add.rectangle(
+            this.game.config.width / 2,
+            platform4Y,
+            610,
+            30,
+            0x8B4513
+        ).setOrigin(0.5);
+        this.physics.add.existing(platform4, true);
+        this.platforms.push(platform4);
 
         // Felix sprite
         this.felix = this.physics.add.sprite(
@@ -47,24 +85,30 @@ class Play extends Phaser.Scene {
         this.felix.setScale(1.5);
         this.felix.setCollideWorldBounds(true);
 
-        // Set up colliders
+        // Colliders
+        // Floor collider
         this.floorCollider = this.physics.add.collider(this.felix, this.floor);
 
-        // If dropping is active, disable collision
-        // Otherwise only collide if Felixs vertical velocity is >= 0 (falling or standing)
+        // Create a collider for each platform with a process callback for one way behavior
+        // The callback allows collision only when Felix is falling (velocity >= 0) and not in drop through mode
         this.dropping = false;
-        this.platformCollider = this.physics.add.collider(
-            this.felix,
-            this.platform,
-            null,
-            (player, plat) => {
-                if (this.dropping) return false;
-                return player.body.velocity.y >= 0;
-            },
-            this
-        );
+        this.platformColliders = [];
+        for (let i = 0; i < this.platforms.length; i++) {
+            let collider = this.physics.add.collider(
+                this.felix,
+                this.platforms[i],
+                null,
+                (player, plat) => {
+                    if (this.dropping) return false;
+                    // Allow collision only when falling or standing
+                    return player.body.velocity.y >= 0;
+                },
+                this
+            );
+            this.platformColliders.push(collider);
+        }
 
-        // Controls 
+        // Controls
         this.keys = this.input.keyboard.addKeys({
             up: 'W',
             left: 'A',
@@ -72,12 +116,10 @@ class Play extends Phaser.Scene {
             down: 'S'
         });
 
-        // When S is pressed, if Felix is on the platform, enable drop through
+        // When S is pressed, if Felix is on a platform, enable drop through
         this.input.keyboard.on('keydown-S', () => {
-            // Check that Felix is on the platform (touching down) and above it
-            if (!this.dropping && this.felix.body.touching.down && this.felix.y < this.platform.y) {
+            if (!this.dropping && this.felix.body.touching.down && this.felix.y < 700) {
                 this.dropping = true;
-                // Re-enable collisions after 200 ms
                 this.time.delayedCall(200, () => {
                     this.dropping = false;
                 });
@@ -95,7 +137,7 @@ class Play extends Phaser.Scene {
             this.felix.setVelocityX(0);
         }
 
-        // Jump with W (only if Felix is on something solid)
+        // Jump with W if on ground
         if (this.keys.up.isDown && this.felix.body.touching.down) {
             this.felix.setVelocityY(-500);
         }
