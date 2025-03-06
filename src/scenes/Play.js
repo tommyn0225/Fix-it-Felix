@@ -77,10 +77,25 @@ class Play extends Phaser.Scene {
         this.platforms.push(platform4);
 
         this.windows = [];
-        this.platforms.forEach(plat => {
-            let win = new WindowPrefab(this, plat.x, plat.y - 47);
+        let groundSpacing = this.game.config.width / 5;
+        for (let i = 0; i < 4; i++) {
+            let windowX = (i + 1) * groundSpacing;
+            let windowY = floorY - 75;
+            let win = new WindowPrefab(this, windowX, windowY);
             this.windows.push(win);
-        });
+        }
+        // Platform windows
+        for (let j = 0; j < 3; j++) {
+            let plat = this.platforms[j];
+            let platLeftEdge = plat.x - (610 / 2);
+            let platSpacing = 610 / 5;
+            for (let i = 0; i < 4; i++) {
+                let windowX = platLeftEdge + (i + 1) * platSpacing;
+                let windowY = plat.y - 75;
+                let win = new WindowPrefab(this, windowX, windowY);
+                this.windows.push(win);
+            }
+        }
 
         // Felix sprite
         this.felix = this.physics.add.sprite(
@@ -92,10 +107,9 @@ class Play extends Phaser.Scene {
         this.felix.setCollideWorldBounds(true);
 
         // Colliders
-        // Floor collider (always active)
         this.floorCollider = this.physics.add.collider(this.felix, this.floor);
 
-        // Create colliders for each platform using a process callback for one way behavior
+        // One-way platform colliders with drop-through behavior
         this.dropping = false;
         this.platformColliders = [];
         this.platforms.forEach(plat => {
@@ -142,12 +156,12 @@ class Play extends Phaser.Scene {
             this.felix.setVelocityX(0);
         }
 
-        // Jump with W and if on ground
+        // Jump if W and on ground
         if (this.keys.up.isDown && this.felix.body.touching.down) {
             this.felix.setVelocityY(-500);
         }
 
-        // When SPACE is pressed and if near window
+        // Window fix if SPACE and near window
         if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
             const fixThreshold = 50;
             this.windows.forEach(win => {
