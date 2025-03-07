@@ -165,17 +165,59 @@ class Play extends Phaser.Scene {
 
         // Brick collider
         this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
+
+        // Score and Timer
+        this.score = 0;
+        this.timeRemaining = 60;
+        this.scoreText = this.add.text(10, 10, "Score: 0", { fontFamily: 'Arial', fontSize: '32px', color: '#ffffff' });
+        this.timerText = this.add.text(this.game.config.width - 10, 10, "Time: 60", { fontFamily: 'Arial', fontSize: '32px', color: '#ffffff' }).setOrigin(1, 0);
+        this.timerEvent = this.time.addEvent({
+            delay: 1000,
+            callback: this.updateTimer,
+            callbackScope: this,
+            loop: true
+        });
     }
 
     spawnBrick() {
         // Spawn 1-3 bricks at random x positions at the top
-        let count = Phaser.Math.Between(1, 3);
-        for (let i = 0; i < count; i++) {
+        let formationChance = Phaser.Math.Between(1, 100);
+        if (formationChance <= 30) {
+            let count = Phaser.Math.Between(2, 3);
             let x = Phaser.Math.Between(32, this.game.config.width - 32);
-            let brick = this.physics.add.sprite(x, -32, 'brick');
-            brick.setVelocityY(Phaser.Math.Between(400, 600));
-            brick.body.allowGravity = false;
-            this.bricks.add(brick);
+            for (let i = 0; i < count; i++) {
+                let brick = this.physics.add.sprite(x, -32 - i * 70, 'brick');
+                brick.setVelocityY(Phaser.Math.Between(400, 600));
+                brick.body.allowGravity = false;
+                this.bricks.add(brick);
+            }
+        } else {
+            // Spawn 1-3 bricks at random x positions at the top
+            let count = Phaser.Math.Between(1, 3);
+            for (let i = 0; i < count; i++) {
+                let x = Phaser.Math.Between(32, this.game.config.width - 32);
+                let brick = this.physics.add.sprite(x, -32, 'brick');
+                brick.setVelocityY(Phaser.Math.Between(400, 600));
+                brick.body.allowGravity = false;
+                this.bricks.add(brick);
+            }
+        }
+    }
+
+    updateTimer() {
+        if (this.gameOver || this.win) return;
+        this.timeRemaining--;
+        this.timerText.setText("Time: " + this.timeRemaining);
+        if (this.timeRemaining <= 0) {
+            this.gameOver = true;
+            this.physics.pause();
+            this.felix.setTint(0xff0000);
+            this.add.text(
+                this.game.config.width / 2,
+                this.game.config.height / 2,
+                "Time Up!\nPress SPACE to Replay\nPress B for Menu",
+                { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
+            ).setOrigin(0.5);
         }
     }
 
@@ -230,6 +272,8 @@ class Play extends Phaser.Scene {
                 );
                 if (distance < fixThreshold && !win.fixed) {
                     win.fix();
+                    this.score += 100; // add score when fixed
+                    this.scoreText.setText("Score: " + this.score);
                 }
             });
         }
@@ -245,10 +289,13 @@ class Play extends Phaser.Scene {
         if (!this.gameOver && !this.win && this.windows.every(win => win.fixed)) {
             this.win = true;
             this.physics.pause();
+            let bonus = this.timeRemaining * 100;
+            this.score += bonus;
+            this.scoreText.setText("Score: " + this.score);
             this.add.text(
                 this.game.config.width / 2,
                 this.game.config.height / 2,
-                "You Win!\nPress SPACE to Replay\nPress B for Menu",
+                "You Win!\nBonus: " + bonus + "\nFinal Score: " + this.score + "\nPress SPACE to Replay\nPress B for Menu",
                 { fontFamily: 'Arial', fontSize: '48px', color: '#00ff00', align: 'center' }
             ).setOrigin(0.5);
         }
