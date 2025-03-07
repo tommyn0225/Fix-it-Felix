@@ -106,6 +106,9 @@ class Play extends Phaser.Scene {
         );
         this.felix.setScale(1.5);
         this.felix.setCollideWorldBounds(true);
+        // Felix hitbox
+        this.felix.body.setSize(32, 45);
+        this.felix.body.setOffset((this.felix.width - 30) / 2, (this.felix.height - 30) / 2);
 
         // Colliders
         this.floorCollider = this.physics.add.collider(this.felix, this.floor);
