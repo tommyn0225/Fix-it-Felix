@@ -14,7 +14,7 @@ class Play extends Phaser.Scene {
         .setOrigin(0.5)
         .setDisplaySize(this.game.config.width, this.game.config.height);
 
-        // Floor (solid, always colliding)
+        // Floor
         const floorHeight = 40;
         const floorY = 800;
         this.floor = this.add.rectangle(
@@ -76,6 +76,7 @@ class Play extends Phaser.Scene {
         this.physics.add.existing(platform4, true);
         this.platforms.push(platform4);
 
+        // Ground floor windows
         this.windows = [];
         let groundSpacing = this.game.config.width / 5;
         for (let i = 0; i < 4; i++) {
@@ -144,6 +145,27 @@ class Play extends Phaser.Scene {
                 });
             }
         });
+
+        // Bricks
+        this.bricks = this.physics.add.group();
+        this.time.addEvent({
+            delay: Phaser.Math.Between(500, 2000),
+            callback: this.spawnBrick,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    spawnBrick() {
+        // Spawn 1-3 bricks at random x positions at the top
+        let count = Phaser.Math.Between(1, 3);
+        for (let i = 0; i < count; i++) {
+            let x = Phaser.Math.Between(32, this.game.config.width - 32);
+            let brick = this.physics.add.sprite(x, -32, 'brick');
+            brick.setVelocityY(Phaser.Math.Between(400, 600));
+            brick.body.allowGravity = false;
+            this.bricks.add(brick);
+        }
     }
 
     update() {
@@ -156,12 +178,12 @@ class Play extends Phaser.Scene {
             this.felix.setVelocityX(0);
         }
 
-        // Jump if W and on ground
+        // Jump with W and if on ground
         if (this.keys.up.isDown && this.felix.body.touching.down) {
             this.felix.setVelocityY(-500);
         }
 
-        // Window fix if SPACE and near window
+        // Fix window with SPACE and nearby window
         if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
             const fixThreshold = 50;
             this.windows.forEach(win => {
@@ -174,5 +196,12 @@ class Play extends Phaser.Scene {
                 }
             });
         }
+
+        // Remove bricks off screen
+        this.bricks.children.each(function(brick) {
+            if (brick.y > this.game.config.height + brick.height) {
+                brick.destroy();
+            }
+        }, this);
     }
 }
