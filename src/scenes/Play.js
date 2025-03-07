@@ -133,7 +133,8 @@ class Play extends Phaser.Scene {
             left: 'A',
             right: 'D',
             down: 'S',
-            fix: 'SPACE'
+            fix: 'SPACE',
+            menu: 'B'
         });
 
         // Drop through
@@ -154,6 +155,13 @@ class Play extends Phaser.Scene {
             callbackScope: this,
             loop: true
         });
+
+        // Game state flags
+        this.gameOver = false;
+        this.win = false;
+
+        // Brick collider
+        this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
     }
 
     spawnBrick() {
@@ -168,7 +176,33 @@ class Play extends Phaser.Scene {
         }
     }
 
+    hitByBrick(felix, brick) {
+        if (!this.gameOver && !this.win) {
+            this.gameOver = true;
+            brick.destroy();
+            this.physics.pause();
+            this.felix.setTint(0xff0000);
+            this.add.text(
+                this.game.config.width / 2,
+                this.game.config.height / 2,
+                "Game Over\nPress SPACE to Replay\nPress B for Menu",
+                { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
+            ).setOrigin(0.5);
+        }
+    }
+
     update() {
+        // If game over or win, press SPACE to restart or B for menu
+        if (this.gameOver || this.win) {
+            if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
+                this.scene.restart();
+            }
+            if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) {
+                this.scene.start("menuScene");
+            }
+            return;
+        }
+
         // Horizontal movement
         if (this.keys.left.isDown) {
             this.felix.setVelocityX(-200);
@@ -203,5 +237,17 @@ class Play extends Phaser.Scene {
                 brick.destroy();
             }
         }, this);
+
+        // Win condition
+        if (!this.gameOver && !this.win && this.windows.every(win => win.fixed)) {
+            this.win = true;
+            this.physics.pause();
+            this.add.text(
+                this.game.config.width / 2,
+                this.game.config.height / 2,
+                "You Win!\nPress SPACE to Replay\nPress B for Menu",
+                { fontFamily: 'Arial', fontSize: '48px', color: '#00ff00', align: 'center' }
+            ).setOrigin(0.5);
+        }
     }
 }
