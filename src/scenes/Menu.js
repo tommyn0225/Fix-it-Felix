@@ -9,7 +9,10 @@ class Menu extends Phaser.Scene {
         this.load.image('building', './assets/building.png');
         this.load.image('titlescreen', './assets/titlescreen.png');
         this.load.image('brick', './assets/brick.png');
-        // this.load.audio('bgm', './assets/bgm.mp3');
+        this.load.audio('bgm', './assets/bgm.mp3');
+        this.load.audio('explosion', './assets/explosion.wav');
+        this.load.audio('buttonClick', './assets/buttonclick.wav');
+
         this.load.spritesheet('felix', './assets/felix.png', {
             frameWidth: 64,
             frameHeight: 64,
@@ -30,11 +33,15 @@ class Menu extends Phaser.Scene {
         .setOrigin(0.5)
         .setDisplaySize(this.game.config.width, this.game.config.height);
 
+        // Background music
+        this.bgm = this.sound.add('bgm', { loop: true, volume: 0.10 });
+        this.bgm.play();
+
         // Credits text
         this.add.text(
             this.game.config.width / 2,
             this.game.config.height - 300,
-            "Created by Tommy Nguyen\nMusic by ____",
+            "Created by Tommy Nguyen\nSounds credited in main.js",
             { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', align: 'center' }
         ).setOrigin(0.5);
 
@@ -56,6 +63,7 @@ class Menu extends Phaser.Scene {
 
         // Start the Play scene when SPACE is pressed
         this.input.keyboard.on('keydown-SPACE', () => {
+            this.sound.play('buttonClick', { volume: 0.25 });
             this.scene.start("playScene");
         });
     }

@@ -223,6 +223,7 @@ class Play extends Phaser.Scene {
 
     hitByBrick(felix, brick) {
         if (!this.gameOver && !this.win) {
+            this.sound.play('explosion', { volume: 0.25 });
             this.gameOver = true;
             brick.destroy();
             this.physics.pause();
@@ -240,9 +241,11 @@ class Play extends Phaser.Scene {
         // If game over or win, press SPACE to restart or B for menu
         if (this.gameOver || this.win) {
             if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
+                this.sound.play('buttonClick', { volume: 0.25 });
                 this.scene.restart();
             }
             if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) {
+                this.sound.play('buttonClick', { volume: 0.25 });
                 this.scene.start("menuScene");
             }
             return;
@@ -272,6 +275,7 @@ class Play extends Phaser.Scene {
                 );
                 if (distance < fixThreshold && !win.fixed) {
                     win.fix();
+                    this.sound.play('buttonClick', { volume: 0.25 });
                     this.score += 100; // add score when fixed
                     this.scoreText.setText("Score: " + this.score);
                 }
