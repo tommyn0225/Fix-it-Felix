@@ -225,7 +225,6 @@ class Play extends Phaser.Scene {
         if (!this.gameOver && !this.win) {
             this.gameOver = true;
             brick.destroy();
-            this.sound.play('hitByBrick', {volume: 0.25});
             this.physics.pause();
             this.felix.setTint(0xff0000);
             this.add.text(
@@ -241,11 +240,9 @@ class Play extends Phaser.Scene {
         // If game over or win, press SPACE to restart or B for menu
         if (this.gameOver || this.win) {
             if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
-                this.sound.play('buttonClick', { volume: 0.25});
                 this.scene.restart();
             }
             if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) {
-                this.sound.play('buttonClick', { volume: 0.25});
                 this.scene.start("menuScene");
             }
             return;
@@ -275,7 +272,6 @@ class Play extends Phaser.Scene {
                 );
                 if (distance < fixThreshold && !win.fixed) {
                     win.fix();
-                    this.sound.play('buttonClick', { volume: 0.25});
                     this.score += 100; // add score when fixed
                     this.scoreText.setText("Score: " + this.score);
                 }
@@ -299,7 +295,7 @@ class Play extends Phaser.Scene {
             this.add.text(
                 this.game.config.width / 2,
                 this.game.config.height / 2,
-                "You Win!\nTime Bonus: " + bonus + "\nFinal Score: " + this.score + "\nPress SPACE to Replay\nPress B for Menu",
+                "You Win!\nBonus: " + bonus + "\nFinal Score: " + this.score + "\nPress SPACE to Replay\nPress B for Menu",
                 { fontFamily: 'Arial', fontSize: '48px', color: '#00ff00', align: 'center' }
             ).setOrigin(0.5);
         }
