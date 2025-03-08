@@ -1,19 +1,28 @@
 // src/prefabs/Window.js
 class WindowPrefab extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
-        // Start broken
+        // Start with broken frame
         super(scene, x, y, 'window', 0);
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.body.setAllowGravity(false);
-        this.fixed = false;
         this.body.setImmovable(true);
+        this.setScale(2);
+
+        // Need to fix twice
+        this.fixCount = 0;
+        this.fixed = false;
     }
     
-    // Fix
     fix() {
-        if (!this.fixed) {
+        if (this.fixed) return;
+        this.fixCount++;
+        if (this.fixCount >= 2) {
             this.fixed = true;
+            // Set to fully fixed frame
+            this.setFrame(2);
+        } else {
+            // Set to partially fixed frame
             this.setFrame(1);
         }
     }

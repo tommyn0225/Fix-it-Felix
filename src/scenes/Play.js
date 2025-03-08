@@ -8,30 +8,28 @@ class Play extends Phaser.Scene {
         // Grid configuration
         this.gridCols = 5;
         this.gridRows = 4;
-        this.cellWidth = this.game.config.width / this.gridCols;   // e.g., 640/5 = 128
-        this.cellHeight = this.game.config.height / this.gridRows;    // e.g., 820/4 = 205
+        this.cellWidth = this.game.config.width / this.gridCols; 
+        this.cellHeight = this.game.config.height / this.gridRows;
 
-        // Background fills the screen
+        // Background
         this.add.image(320, 410, 'building')
             .setOrigin(0.5)
             .setDisplaySize(640, 820);
 
-        // Create grid of windows.
-        // Each cell gets a window at its center.
+        // Create grid of windows
         this.windows = [];
         for (let row = 0; row < this.gridRows; row++) {
             for (let col = 0; col < this.gridCols; col++) {
                 let centerX = (col + 0.5) * this.cellWidth;
                 let centerY = (row + 0.5) * this.cellHeight;
                 let winSprite = new WindowPrefab(this, centerX, centerY);
-                // Save grid coordinates on the window for later reference.
                 winSprite.row = row;
                 winSprite.col = col;
                 this.windows.push(winSprite);
             }
         }
 
-        // Set up player starting grid position: bottom-left cell (row 3, col 0)
+        // Set up player
         this.playerGridPos = { row: this.gridRows - 1, col: 0 };
         let startX = (this.playerGridPos.col + 0.5) * this.cellWidth;
         let startY = (this.playerGridPos.row + 0.5) * this.cellHeight;
@@ -44,8 +42,7 @@ class Play extends Phaser.Scene {
         this.felix.body.setSize(32, 64);
         this.felix.body.setOffset((this.felix.width - 32) / 2, (this.felix.height - 64) / 2);
 
-        // Set up keyboard controls for movement and fixing.
-        // Movement: W, A, S, D; Fix window: SPACE; Return to menu: B.
+        // Controls
         this.keys = this.input.keyboard.addKeys({
             up: 'W',
             down: 'S',
@@ -68,15 +65,13 @@ class Play extends Phaser.Scene {
             loop: true
         });
 
-        // Brick obstacles: bricks fall from above in one of the 5 columns.
+        // Brick obstacles
         this.bricks = this.physics.add.group();
-        // Start the brick spawning sequence.
         this.spawnBrick();
 
-        // Overlap: if a brick overlaps Felix, trigger game over.
+        // If brick hits Felix then game over
         this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
 
-        // Game state flags.
         this.gameOver = false;
         this.win = false;
     }
@@ -96,14 +91,14 @@ class Play extends Phaser.Scene {
     }
 
     spawnBrick() {
-        // Choose a random column (0 to gridCols - 1)
+        // Choose a random column
         let col = Phaser.Math.Between(0, this.gridCols - 1);
         let x = (col + 0.5) * this.cellWidth;
         let y = -20; // spawn just above the screen
         let brick = new BrickPrefab(this, x, y);
         this.bricks.add(brick);
     
-        // Schedule the next brick spawn with a random delay
+        // Spawn brick spawn with a random delay
         this.time.addEvent({
             delay: Phaser.Math.Between(500, 1500),
             callback: this.spawnBrick,
@@ -126,7 +121,7 @@ class Play extends Phaser.Scene {
     }
 
     update() {
-        // If game over or win, allow replay/menu input.
+        // If game over or win, allow replay/menu input
         if (this.gameOver || this.win) {
             if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) { // SPACE to restart
                 this.scene.restart();
