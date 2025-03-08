@@ -275,7 +275,11 @@ class Play extends Phaser.Scene {
                 );
                 if (distance < fixThreshold && !win.fixed) {
                     win.fix();
-                    this.sound.play('buttonClick', { volume: 0.25 });
+                    this.sound.play('hammer', { volume: 0.25 });
+                    this.felix.setFrame(1); // flip to fix frame for 0.5 sec
+                    this.time.delayedCall(500, () => {
+                        this.felix.setFrame(0);
+                    });
                     this.score += 100; // add score when fixed
                     this.scoreText.setText("Score: " + this.score);
                 }
