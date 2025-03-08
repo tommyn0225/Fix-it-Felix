@@ -8,8 +8,11 @@ class Play extends Phaser.Scene {
         // Grid configuration
         this.gridCols = 5;
         this.gridRows = 4;
-        this.cellWidth = this.game.config.width / this.gridCols; 
-        this.cellHeight = this.game.config.height / this.gridRows;
+        this.horizontalMargin = 80;
+        this.verticalMargin = 100;
+        this.bottomMargin = 100;
+        this.cellWidth = (this.game.config.width - 2 * this.horizontalMargin) / this.gridCols; 
+        this.cellHeight = (this.game.config.height - this.verticalMargin - this.bottomMargin) / this.gridRows;
 
         // Background
         this.add.image(320, 410, 'building')
@@ -20,8 +23,8 @@ class Play extends Phaser.Scene {
         this.windows = [];
         for (let row = 0; row < this.gridRows; row++) {
             for (let col = 0; col < this.gridCols; col++) {
-                let centerX = (col + 0.5) * this.cellWidth;
-                let centerY = (row + 0.5) * this.cellHeight;
+                let centerX = this.horizontalMargin + (col + 0.5) * this.cellWidth;
+                let centerY = this.verticalMargin + (row + 0.5) * this.cellHeight;
                 let winSprite = new WindowPrefab(this, centerX, centerY);
                 winSprite.row = row;
                 winSprite.col = col;
@@ -30,11 +33,9 @@ class Play extends Phaser.Scene {
         }
 
         // Set up player
-        // Set up player starting position: bottom-left cell (row 3, col 0)
         this.playerGridPos = { row: this.gridRows - 1, col: 0 };
-        let startX = (this.playerGridPos.col + 0.5) * this.cellWidth;
-        let startY = (this.playerGridPos.row + 0.5) * this.cellHeight;
-        // Use the Felix prefab here:
+        let startX = this.horizontalMargin + (this.playerGridPos.col + 0.5) * this.cellWidth;
+        let startY = this.verticalMargin + (this.playerGridPos.row + 0.5) * this.cellHeight;
         this.felix = new Felix(this, startX, startY);
 
         // Controls
@@ -65,7 +66,6 @@ class Play extends Phaser.Scene {
         this.spawnBrick();
 
         // If brick hits Felix then game over
-        // If a brick overlaps Felix, trigger game over.
         this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
 
         this.gameOver = false;
@@ -89,9 +89,8 @@ class Play extends Phaser.Scene {
     spawnBrick() {
         // Choose a random column
         let col = Phaser.Math.Between(0, this.gridCols - 1);
-        let x = (col + 0.5) * this.cellWidth;
+        let x = this.horizontalMargin + (col + 0.5) * this.cellWidth;
         let y = -20; // spawn just above the screen
-        let y = -20;
         let brick = new BrickPrefab(this, x, y);
         this.bricks.add(brick);
         // Spawn brick spawn with a random delay
@@ -147,8 +146,8 @@ class Play extends Phaser.Scene {
             moved = true;
         }
         if (moved) {
-            let newX = (this.playerGridPos.col + 0.5) * this.cellWidth;
-            let newY = (this.playerGridPos.row + 0.5) * this.cellHeight;
+            let newX = this.horizontalMargin + (this.playerGridPos.col + 0.5) * this.cellWidth;
+            let newY = this.verticalMargin + (this.playerGridPos.row + 0.5) * this.cellHeight;
             this.tweens.add({
                 targets: this.felix,
                 x: newX,
