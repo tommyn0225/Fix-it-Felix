@@ -8,6 +8,10 @@ class Play extends Phaser.Scene {
         // Grid configuration
         this.gridCols = 5;
         this.gridRows = 4;
+        this.cellWidth = this.game.config.width / this.gridCols; 
+        this.cellHeight = this.game.config.height / this.gridRows;
+
+        // Define margins to shift the grid (these remain unchanged)
         this.horizontalMargin = 80;
         this.verticalMargin = 100;
         this.bottomMargin = 100;
@@ -70,6 +74,9 @@ class Play extends Phaser.Scene {
 
         this.gameOver = false;
         this.win = false;
+
+        // NEW: Initialize fix cooldown flag
+        this.fixOnCooldown = false;
     }
 
     updateTimer() {
@@ -152,19 +159,29 @@ class Play extends Phaser.Scene {
                 targets: this.felix,
                 x: newX,
                 y: newY,
-                duration: 150,
+                duration: 300,
                 ease: 'Power2'
             });
         }
 
         // Fix window
         if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
-            let currentWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === this.playerGridPos.col);
-            if (currentWindow && !currentWindow.fixed) {
-                currentWindow.fix();
-                this.sound.play('hammer', { volume: 0.25 });
-                this.score += 100;
-                this.scoreText.setText("Score: " + this.score);
+            if (!this.fixOnCooldown) {
+                let currentWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === this.playerGridPos.col);
+                if (currentWindow && !currentWindow.fixed) {
+                    currentWindow.fix();
+                    this.sound.play('hammer', { volume: 0.25 });
+                    this.score += 100;
+                    this.scoreText.setText("Score: " + this.score);
+                }
+                this.fixOnCooldown = true;
+                this.time.addEvent({
+                    delay: 200,
+                    callback: function() {
+                        this.fixOnCooldown = false;
+                    },
+                    callbackScope: this
+                });
             }
         }
 
