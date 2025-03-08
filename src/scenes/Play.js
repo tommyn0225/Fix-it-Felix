@@ -13,7 +13,7 @@ class Play extends Phaser.Scene {
 
         // Define margins to shift the grid (these remain unchanged)
         this.horizontalMargin = 80;
-        this.verticalMargin = 100;
+        this.verticalMargin = 200;
         this.bottomMargin = 100;
         this.cellWidth = (this.game.config.width - 2 * this.horizontalMargin) / this.gridCols; 
         this.cellHeight = (this.game.config.height - this.verticalMargin - this.bottomMargin) / this.gridRows;
@@ -75,7 +75,6 @@ class Play extends Phaser.Scene {
         this.gameOver = false;
         this.win = false;
 
-        // NEW: Initialize fix cooldown flag
         this.fixOnCooldown = false;
     }
 
@@ -159,7 +158,7 @@ class Play extends Phaser.Scene {
                 targets: this.felix,
                 x: newX,
                 y: newY,
-                duration: 300,
+                duration: 500,
                 ease: 'Power2'
             });
         }
