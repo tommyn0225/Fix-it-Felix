@@ -76,6 +76,7 @@ class Play extends Phaser.Scene {
         this.win = false;
 
         this.fixOnCooldown = false;
+        this.moveOnCooldown = false;
     }
 
     updateTimer() {
@@ -134,30 +135,36 @@ class Play extends Phaser.Scene {
         }
 
         // Update grid coordinates when a directional key is pressed
-        let moved = false;
-        if (Phaser.Input.Keyboard.JustDown(this.keys.left) && this.playerGridPos.col > 0) {
-            this.playerGridPos.col--;
-            moved = true;
-        } else if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
-            this.playerGridPos.col++;
-            moved = true;
-        } else if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
-            this.playerGridPos.row--;
-            moved = true;
-        } else if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
-            this.playerGridPos.row++;
-            moved = true;
-        }
-        if (moved) {
-            let newX = this.horizontalMargin + (this.playerGridPos.col + 0.5) * this.cellWidth;
-            let newY = this.verticalMargin + (this.playerGridPos.row + 0.5) * this.cellHeight;
-            this.tweens.add({
-                targets: this.felix,
-                x: newX,
-                y: newY,
-                duration: 500,
-                ease: 'Power2'
-            });
+        if (!this.moveOnCooldown) {
+            let moved = false;
+            if (Phaser.Input.Keyboard.JustDown(this.keys.left) && this.playerGridPos.col > 0) {
+                this.playerGridPos.col--;
+                moved = true;
+            } else if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
+                this.playerGridPos.col++;
+                moved = true;
+            } else if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
+                this.playerGridPos.row--;
+                moved = true;
+            } else if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
+                this.playerGridPos.row++;
+                moved = true;
+            }
+            if (moved) {
+                this.moveOnCooldown = true;
+                let newX = this.horizontalMargin + (this.playerGridPos.col + 0.5) * this.cellWidth;
+                let newY = this.verticalMargin + (this.playerGridPos.row + 0.5) * this.cellHeight;
+                this.tweens.add({
+                    targets: this.felix,
+                    x: newX,
+                    y: newY,
+                    duration: 400,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        this.moveOnCooldown = false;
+                    }
+                });
+            }
         }
 
         // Fix window
