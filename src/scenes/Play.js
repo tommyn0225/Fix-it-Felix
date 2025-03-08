@@ -138,16 +138,13 @@ class Play extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(this.keys.left) && this.playerGridPos.col > 0) {
             this.playerGridPos.col--;
             moved = true;
-        }
-        if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
+        } else if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
             this.playerGridPos.col++;
             moved = true;
-        }
-        if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
+        } else if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
             this.playerGridPos.row--;
             moved = true;
-        }
-        if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
+        } else if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
             this.playerGridPos.row++;
             moved = true;
         }
