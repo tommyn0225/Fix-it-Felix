@@ -30,17 +30,12 @@ class Play extends Phaser.Scene {
         }
 
         // Set up player
+        // Set up player starting position: bottom-left cell (row 3, col 0)
         this.playerGridPos = { row: this.gridRows - 1, col: 0 };
         let startX = (this.playerGridPos.col + 0.5) * this.cellWidth;
         let startY = (this.playerGridPos.row + 0.5) * this.cellHeight;
-        this.felix = this.physics.add.sprite(startX, startY, 'felix');
-        this.felix.setScale(1.5);
-        this.felix.setCollideWorldBounds(true);
-        // Disable gravity on Felix so he behaves like a chess piece.
-        this.felix.body.setAllowGravity(false);
-        // Adjust Felix's hitbox to be 32x64 (centered).
-        this.felix.body.setSize(32, 64);
-        this.felix.body.setOffset((this.felix.width - 32) / 2, (this.felix.height - 64) / 2);
+        // Use the Felix prefab here:
+        this.felix = new Felix(this, startX, startY);
 
         // Controls
         this.keys = this.input.keyboard.addKeys({
@@ -70,6 +65,7 @@ class Play extends Phaser.Scene {
         this.spawnBrick();
 
         // If brick hits Felix then game over
+        // If a brick overlaps Felix, trigger game over.
         this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
 
         this.gameOver = false;
@@ -95,10 +91,11 @@ class Play extends Phaser.Scene {
         let col = Phaser.Math.Between(0, this.gridCols - 1);
         let x = (col + 0.5) * this.cellWidth;
         let y = -20; // spawn just above the screen
+        let y = -20;
         let brick = new BrickPrefab(this, x, y);
         this.bricks.add(brick);
-    
         // Spawn brick spawn with a random delay
+
         this.time.addEvent({
             delay: Phaser.Math.Between(500, 1500),
             callback: this.spawnBrick,
@@ -107,7 +104,6 @@ class Play extends Phaser.Scene {
         });
     }
     
-
     hitByBrick(player, brick) {
         if (!this.gameOver && !this.win) {
             this.gameOver = true;
@@ -123,10 +119,10 @@ class Play extends Phaser.Scene {
     update() {
         // If game over or win, allow replay/menu input
         if (this.gameOver || this.win) {
-            if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) { // SPACE to restart
+            if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
                 this.scene.restart();
             }
-            if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) { // B to go to menu
+            if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) {
                 this.scene.start("menuScene");
             }
             return;
@@ -134,17 +130,21 @@ class Play extends Phaser.Scene {
 
         // Update grid coordinates when a directional key is pressed
         let moved = false;
-        if (Phaser.Input.Keyboard.JustDown(this.keys.left)) {
-            if (this.playerGridPos.col > 0) { this.playerGridPos.col--; moved = true; }
+        if (Phaser.Input.Keyboard.JustDown(this.keys.left) && this.playerGridPos.col > 0) {
+            this.playerGridPos.col--;
+            moved = true;
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keys.right)) {
-            if (this.playerGridPos.col < this.gridCols - 1) { this.playerGridPos.col++; moved = true; }
+        if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
+            this.playerGridPos.col++;
+            moved = true;
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keys.up)) {
-            if (this.playerGridPos.row > 0) { this.playerGridPos.row--; moved = true; }
+        if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
+            this.playerGridPos.row--;
+            moved = true;
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keys.down)) {
-            if (this.playerGridPos.row < this.gridRows - 1) { this.playerGridPos.row++; moved = true; }
+        if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
+            this.playerGridPos.row++;
+            moved = true;
         }
         if (moved) {
             let newX = (this.playerGridPos.col + 0.5) * this.cellWidth;
