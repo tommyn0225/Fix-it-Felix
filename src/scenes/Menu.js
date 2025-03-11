@@ -18,7 +18,7 @@ class Menu extends Phaser.Scene {
             frameWidth: 64,
             frameHeight: 64,
         });
-        this.load.spritesheet('window', './assets/window.png', {
+        this.load.spritesheet('window', './assets/windows.png', {
             frameWidth: 64,
             frameHeight: 64,
         });
