@@ -67,7 +67,17 @@ class Play extends Phaser.Scene {
 
         // Brick obstacles
         this.bricks = this.physics.add.group();
-        this.spawnBrick();
+        this.brickTimer = this.time.addEvent({
+            delay: Phaser.Math.Between(500, 1500),
+            callback: () => {
+                if (!this.gameOver && !this.win) {
+                    this.spawnBrick();
+                    this.brickTimer.delay = Phaser.Math.Between(500, 1500);
+                }
+            },
+            callbackScope: this,
+            loop: true
+        });
 
         // If brick hits Felix then game over
         this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
@@ -77,6 +87,13 @@ class Play extends Phaser.Scene {
 
         this.fixOnCooldown = false;
         this.moveOnCooldown = false;
+
+        this.lives = 3;
+        this.livesIcons = [];
+        for (let i = 0; i < this.lives; i++) {
+            let icon = this.add.image(60 + (i * 40), 60, 'lives').setScale(0.5);
+            this.livesIcons.push(icon);
+        }
     }
 
     updateTimer() {
@@ -97,28 +114,26 @@ class Play extends Phaser.Scene {
         // Choose a random column
         let col = Phaser.Math.Between(0, this.gridCols - 1);
         let x = this.horizontalMargin + (col + 0.5) * this.cellWidth;
-        let y = -20; // spawn just above the screen
+        let y = -20;
         let brick = new BrickPrefab(this, x, y);
         this.bricks.add(brick);
-        // Spawn brick spawn with a random delay
-
-        this.time.addEvent({
-            delay: Phaser.Math.Between(500, 1500),
-            callback: this.spawnBrick,
-            callbackScope: this,
-            loop: false
-        });
     }
-    
+
+    // Remove 1 life if hit, if no lives left: game over
     hitByBrick(player, brick) {
         if (!this.gameOver && !this.win) {
-            this.gameOver = true;
+            this.lives--;
+            this.livesIcons[this.lives].destroy();
             brick.destroy();
-            this.physics.pause();
-            this.felix.setTint(0xff0000);
-            this.add.text(320, 410, "Game Over\nPress SPACE to Replay\nPress B for Menu",
-                { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
-            ).setOrigin(0.5);
+            // If no lives remain, trigger game over
+            if (this.lives <= 0) {
+                this.gameOver = true;
+                this.physics.pause();
+                this.felix.setTint(0xff0000);
+                this.add.text(320, 410, "Game Over\nPress SPACE to Replay\nPress B for Menu",
+                    { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
+                ).setOrigin(0.5);
+            }
         }
     }
 
