@@ -18,9 +18,18 @@ class PlayBase extends Phaser.Scene {
         this.add.image(320, 410, 'building')
             .setOrigin(0.5)
             .setDisplaySize(640, 820);
-
-        // Ralph idle loop
+        
+        // Ralph idle loop and tween
         this.ralph = new Ralph(this, 320, 110);
+        this.tweens.add({
+            targets: this.ralph,
+            x: 400,
+            duration: 2000,
+            ease: 'Linear',
+            yoyo: true,
+            repeat: -1
+        });
+
         
         // Create grid of windows
         this.createGrid();
@@ -72,6 +81,21 @@ class PlayBase extends Phaser.Scene {
         
         // Collision detection for bricks hitting the player
         this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
+        
+        // Set up duck obstacles (spawning as frequently as bricks)
+        this.ducks = this.physics.add.group();
+        this.duckTimer = this.time.addEvent({
+            delay: Phaser.Math.Between(500, 1500),
+            callback: () => {
+                if (!this.gameOver && !this.win) {
+                    this.spawnDuck();
+                    this.duckTimer.delay = Phaser.Math.Between(500, 1500);
+                }
+            },
+            callbackScope: this,
+            loop: true
+        });
+        this.physics.add.overlap(this.felix, this.ducks, this.hitByDuck, null, this);
         
         this.gameOver = false;
         this.win = false;
@@ -142,12 +166,56 @@ class PlayBase extends Phaser.Scene {
         }
     }
     
+    spawnDuck() {
+        // Choose a random row index (0 to gridRows - 1)
+        let row = Phaser.Math.Between(0, this.gridRows - 1);
+        // Calculate y using the grid's vertical margin and cell height
+        let y = this.verticalMargin + (row + 0.5) * this.cellHeight;
+        let startX = -50;
+        let duck = new DuckPrefab(this, startX, y);
+        this.ducks.add(duck);
+    
+        // Use a tween to slide the duck from startX to x = 640 over 3 seconds
+        this.tweens.add({
+            targets: duck,
+            x: 640,         // End x coordinate
+            duration: 3000, // Duration in milliseconds
+            ease: 'Linear',
+            onComplete: () => {
+                duck.destroy();
+            }
+        });
+    }
+    
+    
+    
+    
+    
+    
+    hitByDuck(player, duck) {
+        if (!this.gameOver && !this.win) {
+            this.lives--;
+            this.livesIcons[this.lives].destroy();
+            duck.destroy();
+            if (this.lives <= 0) {
+                this.gameOver = true;
+                this.physics.pause();
+                this.felix.setTint(0xff0000);
+                this.add.text(320, 410, "Game Over\nPress SPACE to Replay\nPress B for Menu",
+                    { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
+                ).setOrigin(0.5);
+            }
+        }
+    }
+    
     update(time, delta) {
         if (this.gameOver || this.win) {
             if (this.win) {
                 if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
                     if (this.scene.key === "play1Scene") {
                         this.scene.start("play2Scene");
+                    } else if (this.scene.key === "play2Scene") {
+                        this.scene.start("play3Scene");
                     } else {
                         this.scene.start("menuScene");
                     }
@@ -263,6 +331,14 @@ class PlayBase extends Phaser.Scene {
                 brick.destroy();
             }
         }, this);
+        
+        // Remove ducks that move offscreen (spawned in all levels)
+        this.ducks.children.each(function(duck) {
+            if (duck.x > this.game.config.width + 100) {
+                duck.destroy();
+            }
+        }, this);
+
         
         // Check win condition: all windows fixed.
         if (!this.gameOver && !this.win && this.windows.every(win => win.fixed)) {

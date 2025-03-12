@@ -1,17 +1,15 @@
-// src/scenes/Play2.js
-class Play2 extends PlayBase {
-    constructor() { 
-        super("play2Scene");
+// src/scenes/Play3.js
+class Play3 extends PlayBase {
+    constructor() {
+        super("play3Scene");
     }
 
     create() {
-        // Define a preset grid pattern for level 2:
-        // Each cell is designated as "normal", "cover", or "planter"
         this.gridPattern = [
             ['normal', 'cover',   'normal',  'planter', 'normal'],
-            ['cover', 'normal',  'cover',   'normal',  'planter'],
-            ['planter','normal',  'normal',  'cover',   'normal'],
-            ['normal', 'planter', 'normal',  'normal',  'normal']
+            ['cover', 'normal',  'planter',   'normal',  'cover'],
+            ['planter','planter',  'normal',  'cover',   'normal'],
+            ['normal', 'normal', 'normal',  'normal',  'normal']
         ];
         super.create();
 
