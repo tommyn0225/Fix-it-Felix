@@ -142,10 +142,13 @@ class PlayBase extends Phaser.Scene {
             this.lives--;
             this.livesIcons[this.lives].destroy();
             brick.destroy();
+            // Play hit animation for Felix
+            this.felix.setHit();
             if (this.lives <= 0) {
+                // On death, play die animation
+                this.felix.setDie();
                 this.gameOver = true;
                 this.physics.pause();
-                this.felix.setTint(0xff0000);
                 this.add.text(320, 410, "Game Over\nPress SPACE to Replay\nPress B for Menu",
                     { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
                 ).setOrigin(0.5);
@@ -160,7 +163,7 @@ class PlayBase extends Phaser.Scene {
         if (this.timeRemaining <= 0) {
             this.gameOver = true;
             this.physics.pause();
-            this.felix.setTint(0xff0000);
+            this.felix.setDie();
             this.add.text(320, 410, "Time Up!\nPress SPACE to Replay\nPress B for Menu", 
                 { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
             ).setOrigin(0.5);
@@ -168,13 +171,13 @@ class PlayBase extends Phaser.Scene {
     }
     
     spawnDuck() {
-        // Spawn duck in random row
+        // Spawn a duck in random row
         let row = Phaser.Math.Between(0, this.gridRows - 1);
         let y = this.verticalMargin + (row + 0.5) * this.cellHeight;
         let startX = -50;
         let duck = new DuckPrefab(this, startX, y);
         this.ducks.add(duck);
-        // Tween duck left to right
+        // Tween duck from left to right
         this.tweens.add({
             targets: duck,
             x: this.game.config.width + 50,
@@ -194,7 +197,7 @@ class PlayBase extends Phaser.Scene {
             if (this.lives <= 0) {
                 this.gameOver = true;
                 this.physics.pause();
-                this.felix.setTint(0xff0000);
+                this.felix.setDie();
                 this.add.text(320, 410, "Game Over\nPress SPACE to Replay\nPress B for Menu",
                     { fontFamily: 'Arial', fontSize: '48px', color: '#ff0000', align: 'center' }
                 ).setOrigin(0.5);
@@ -233,7 +236,7 @@ class PlayBase extends Phaser.Scene {
             let targetRow = this.playerGridPos.row;
             let targetCol = this.playerGridPos.col;
             
-            // Get the current window from the grid
+            // Get the current window from the grid∂
             let currentWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === this.playerGridPos.col);
             
             // Up movement: if target window (above) is a WindowPlanter, block upward movement
@@ -281,9 +284,11 @@ class PlayBase extends Phaser.Scene {
             }
             
             if (moved) {
-                // Update grid position
+                // Update grid position.
                 this.playerGridPos.row = targetRow;
                 this.playerGridPos.col = targetCol;
+                // Call Felix's move animation based on lastMoveDirection
+                this.felix.setMove(this.lastMoveDirection);
                 this.moveOnCooldown = true;
                 let newX = this.horizontalMargin + (this.playerGridPos.col + 0.5) * this.cellWidth;
                 let newY = this.verticalMargin + (this.playerGridPos.row + 0.5) * this.cellHeight;
@@ -309,6 +314,8 @@ class PlayBase extends Phaser.Scene {
                     this.sound.play('hammer', { volume: 0.25 });
                     this.score += 100;
                     this.scoreText.setText("Score: " + this.score);
+                    // Call Felix's fix animation
+                    this.felix.setFix();
                 }
                 this.fixOnCooldown = true;
                 this.time.addEvent({
