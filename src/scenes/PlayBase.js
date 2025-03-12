@@ -34,11 +34,11 @@ class PlayBase extends Phaser.Scene {
             down: 'S',
             left: 'A',
             right: 'D',
-            fix: 'SPACE',  // SPACE key used to fix windows / advance on win
+            fix: 'SPACE',
             menu: 'B'
         });
         
-        // Set up HUD
+        // Set up HUD: score, timer, lives
         this.score = 0;
         this.timeRemaining = 60;
         this.scoreText = this.add.text(10, 10, "Score: 0", { fontFamily: 'Arial', fontSize: '32px', color: '#ffffff' });
@@ -75,10 +75,8 @@ class PlayBase extends Phaser.Scene {
         this.fixOnCooldown = false;
         this.moveOnCooldown = false;
         
-        // Track the player's last movement if needed
         this.lastMoveDirection = null;
         
-        // Timer event to update the countdown every second
         this.time.addEvent({
             delay: 1000,
             callback: this.updateTimer,
@@ -103,7 +101,7 @@ class PlayBase extends Phaser.Scene {
     }
     
     spawnBrick() {
-        // Choose a random column and spawn a brick above the screen.
+        // Spawn a brick in a random column above the screen.
         let col = Phaser.Math.Between(0, this.gridCols - 1);
         let x = this.horizontalMargin + (col + 0.5) * this.cellWidth;
         let y = -20;
@@ -142,49 +140,85 @@ class PlayBase extends Phaser.Scene {
     }
     
     update(time, delta) {
-        // If game is over or won, listen for SPACE (to advance/replay) or B (to go to Menu).
         if (this.gameOver || this.win) {
-            if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
-                if (this.win) {
-                    // If in Level 1, pressing SPACE advances to Level 2.
+            if (this.win) {
+                if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
                     if (this.scene.key === "play1Scene") {
                         this.scene.start("play2Scene");
                     } else {
-                        // Otherwise, replay the current scene.
-                        this.scene.restart();
+                        this.scene.start("menuScene");
                     }
-                } else {
-                    // Game over case: replay current scene.
+                } else if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) {
+                    this.scene.start("menuScene");
+                }
+            } else {
+                if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
                     this.scene.restart();
                 }
-            }
-            if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) {
-                this.scene.start("menuScene");
+                if (Phaser.Input.Keyboard.JustDown(this.keys.menu)) {
+                    this.scene.start("menuScene");
+                }
             }
             return;
         }
         
-        // Handle grid movement
+        // Handle grid movement with barrier restrictions
         if (!this.moveOnCooldown) {
             let moved = false;
-            if (Phaser.Input.Keyboard.JustDown(this.keys.left) && this.playerGridPos.col > 0) {
-                this.playerGridPos.col--;
-                this.lastMoveDirection = 'left';
-                moved = true;
-            } else if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
-                this.playerGridPos.col++;
-                this.lastMoveDirection = 'right';
-                moved = true;
-            } else if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
-                this.playerGridPos.row--;
-                this.lastMoveDirection = 'up';
-                moved = true;
-            } else if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
-                this.playerGridPos.row++;
-                this.lastMoveDirection = 'down';
-                moved = true;
+            let targetRow = this.playerGridPos.row;
+            let targetCol = this.playerGridPos.col;
+            
+            // Get the current window from the grid∂
+            let currentWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === this.playerGridPos.col);
+            
+            // Up movement: if target window (above) is a WindowPlanter, block upward movement
+            if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
+                targetRow = this.playerGridPos.row - 1;
+                let targetWindow = this.windows.find(win => win.row === targetRow && win.col === this.playerGridPos.col);
+                if (targetWindow instanceof WindowPlanter) {
+                    // Block upward movement due to planter barrier
+                } else {
+                    this.lastMoveDirection = 'up';
+                    moved = true;
+                }
             }
+            // Down movement: if current window is a WindowPlanter, block downward movement
+            else if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
+                if (currentWindow instanceof WindowPlanter) {
+                    // Block downward movement due to planter barrier
+                } else {
+                    targetRow = this.playerGridPos.row + 1;
+                    this.lastMoveDirection = 'down';
+                    moved = true;
+                }
+            }
+            // Left movement: block if either current OR target window is a WindowCover
+            else if (Phaser.Input.Keyboard.JustDown(this.keys.left) && this.playerGridPos.col > 0) {
+                targetCol = this.playerGridPos.col - 1;
+                let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
+                if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
+                    // Block leftward movement due to cover barrier
+                } else {
+                    this.lastMoveDirection = 'left';
+                    moved = true;
+                }
+            }
+            // Right movement: block if either current OR target window is a WindowCover
+            else if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
+                targetCol = this.playerGridPos.col + 1;
+                let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
+                if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
+                    // Block rightward movement due to cover barrier
+                } else {
+                    this.lastMoveDirection = 'right';
+                    moved = true;
+                }
+            }
+            
             if (moved) {
+                // Update grid position.
+                this.playerGridPos.row = targetRow;
+                this.playerGridPos.col = targetCol;
                 this.moveOnCooldown = true;
                 let newX = this.horizontalMargin + (this.playerGridPos.col + 0.5) * this.cellWidth;
                 let newY = this.verticalMargin + (this.playerGridPos.row + 0.5) * this.cellHeight;
@@ -214,9 +248,7 @@ class PlayBase extends Phaser.Scene {
                 this.fixOnCooldown = true;
                 this.time.addEvent({
                     delay: 100,
-                    callback: () => {
-                        this.fixOnCooldown = false;
-                    },
+                    callback: () => { this.fixOnCooldown = false; },
                     callbackScope: this
                 });
             }
@@ -229,29 +261,19 @@ class PlayBase extends Phaser.Scene {
             }
         }, this);
         
-        // Win condition: all windows fixed
+        // Check win condition: all windows fixed.
         if (!this.gameOver && !this.win && this.windows.every(win => win.fixed)) {
             this.win = true;
             this.physics.pause();
             let bonus = this.timeRemaining * 100;
             this.score += bonus;
             this.scoreText.setText("Score: " + this.score);
-            
-            // If current scene is Level 1, SPACE goes to next level (play2Scene)
-            if (this.scene.key === "play1Scene") {
-                this.add.text(320, 410,
-                    "You Win!\nBonus: " + bonus + "\nFinal Score: " + this.score +
-                    "\nPress SPACE for Next Level\nPress B for Menu",
-                    { fontFamily: 'Arial', fontSize: '48px', color: '#00ff00', align: 'center' }
-                ).setOrigin(0.5);
-            } else {
-                // Default behavior: replay the scene on SPACE
-                this.add.text(320, 410,
-                    "You Win!\nBonus: " + bonus + "\nFinal Score: " + this.score +
-                    "\nPress SPACE to Replay\nPress B for Menu",
-                    { fontFamily: 'Arial', fontSize: '48px', color: '#00ff00', align: 'center' }
-                ).setOrigin(0.5);
-            }
+            // Display win text with options.
+            this.add.text(320, 410,
+                "You Win!\nBonus: " + bonus + "\nFinal Score: " + this.score +
+                "\nPress SPACE for Next Level\nPress B for Menu",
+                { fontFamily: 'Arial', fontSize: '48px', color: '#00ff00', align: 'center' }
+            ).setOrigin(0.5);
         }
     }
 }

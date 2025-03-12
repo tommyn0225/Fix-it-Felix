@@ -2,7 +2,7 @@
 class WindowPlanter extends WindowPrefab {
     constructor(scene, x, y) {
         super(scene, x, y, 'windowPlanter', 0);
-        this.setScale(2);
+        this.setScale(2.5);
         
         // Create a block along the bottom edge of the window.
         const blockHeight = 10;

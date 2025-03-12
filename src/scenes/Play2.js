@@ -9,9 +9,9 @@ class Play2 extends PlayBase {
         // Each cell is designated as "normal", "cover", or "planter"
         this.gridPattern = [
             ['normal', 'cover',   'normal',  'planter', 'normal'],
-            ['normal', 'normal',  'cover',   'normal',  'planter'],
+            ['cover', 'normal',  'cover',   'normal',  'planter'],
             ['planter','normal',  'normal',  'cover',   'normal'],
-            ['normal', 'planter', 'normal',  'normal',  'cover']
+            ['normal', 'planter', 'normal',  'normal',  'normal']
         ];
         super.create();
 
