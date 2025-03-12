@@ -36,6 +36,10 @@ class Menu extends Phaser.Scene {
             frameWidth: 32,
             frameHeight: 32,
         });
+        this.load.spritesheet('ralph', './assets/ralph.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+        });
     }
 
     create() {
