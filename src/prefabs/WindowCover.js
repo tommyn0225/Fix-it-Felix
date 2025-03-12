@@ -2,6 +2,7 @@
 class WindowCover extends WindowPrefab {
     constructor(scene, x, y) {
         super(scene, x, y, 'windowCover', 0);
+        this.setScale(2.5);
         
         // Create two blocks at the left and right edges.
         const blockWidth = 10;
