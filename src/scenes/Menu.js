@@ -25,11 +25,11 @@ class Menu extends Phaser.Scene {
             frameHeight: 64,
         });
         this.load.spritesheet('windowCover', './assets/windowsCover.png', {
-            frameWidth: 64,
+            frameWidth: 32,
             frameHeight: 64,
         });
         this.load.spritesheet('windowPlanter', './assets/windowPlanter.png', {
-            frameWidth: 64,
+            frameWidth: 32,
             frameHeight: 64,
         });
         this.load.spritesheet('duck', './assets/duck.png', {
@@ -85,7 +85,7 @@ class Menu extends Phaser.Scene {
         // Start the Play scene when SPACE is pressed
         this.input.keyboard.on('keydown-SPACE', () => {
             this.sound.play('buttonClick', { volume: 0.25 });
-            this.scene.start("playScene");
+            this.scene.start("play1Scene");
         });
     }
 }
