@@ -19,7 +19,7 @@ class PlayBase extends Phaser.Scene {
             .setOrigin(0.5)
             .setDisplaySize(640, 820);
         
-        // Ralph idle loop and tween
+        // Ralph animation loop and tween
         this.ralph = new Ralph(this, 320, 110);
         this.tweens.add({
             targets: this.ralph,
