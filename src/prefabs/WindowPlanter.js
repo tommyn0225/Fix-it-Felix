@@ -10,7 +10,7 @@ class WindowPlanter extends WindowPrefab {
         const halfHeight = this.displayHeight / 2;
         
         // Create bottom block positioned at the lower edge of the window
-        this.bottomBlock = scene.add.rectangle(x, y + halfHeight, blockWidth, blockHeight, 0xff0000, 0.5);
+        this.bottomBlock = scene.add.rectangle(x, y + halfHeight, blockWidth, blockHeight, 0xff0000, 0);
         scene.physics.add.existing(this.bottomBlock, true);
     }
 }

@@ -10,11 +10,11 @@ class WindowCover extends WindowPrefab {
         const halfWidth = this.displayWidth / 2;
         
         // Create left block at the left edge of the window
-        this.leftBlock = scene.add.rectangle(x - halfWidth, y, blockWidth, blockHeight, 0xff0000, 0.5);
+        this.leftBlock = scene.add.rectangle(x - halfWidth, y, blockWidth, blockHeight, 0xff0000, 0);
         scene.physics.add.existing(this.leftBlock, true);
         
         // Create right block at the right edge of the window
-        this.rightBlock = scene.add.rectangle(x + halfWidth, y, blockWidth, blockHeight, 0xff0000, 0.5);
+        this.rightBlock = scene.add.rectangle(x + halfWidth, y, blockWidth, blockHeight, 0xff0000, 0);
         scene.physics.add.existing(this.rightBlock, true);
     }
 }
