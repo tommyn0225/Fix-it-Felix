@@ -18,6 +18,9 @@ class PlayBase extends Phaser.Scene {
         this.add.image(320, 410, 'building')
             .setOrigin(0.5)
             .setDisplaySize(640, 820);
+
+        // Ralph idle loop
+        this.ralph = new Ralph(this, 320, 110);
         
         // Create grid of windows
         this.createGrid();
