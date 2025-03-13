@@ -33,7 +33,7 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
         } else if (direction === 'right') {
             this.setFlipX(false);
         }
-        this.scene.time.delayedCall(500, () => {
+        this.scene.time.delayedCall(150, () => {
             this.setIdle();
         });
     }
@@ -43,7 +43,7 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
         if (this.dead) return;
         // Fixing a window (index 2) for 0.65 second
         this.setFrame(2);
-        this.scene.time.delayedCall(650, () => {
+        this.scene.time.delayedCall(125, () => {
             this.setIdle();
         });
     }
@@ -53,7 +53,7 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
         if (this.dead) return;
         // Getting hit by a brick (index 3) then back to idle
         this.setFrame(3);
-        this.scene.time.delayedCall(500, () => {
+        this.scene.time.delayedCall(200, () => {
             this.setIdle();
         });
     }

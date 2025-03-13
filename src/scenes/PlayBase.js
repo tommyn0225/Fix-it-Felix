@@ -296,7 +296,7 @@ class PlayBase extends Phaser.Scene {
                     targets: this.felix,
                     x: newX,
                     y: newY,
-                    duration: 200,
+                    duration: 200, // move speed
                     ease: 'Power2',
                     onComplete: () => {
                         this.moveOnCooldown = false;
@@ -319,7 +319,7 @@ class PlayBase extends Phaser.Scene {
                 }
                 this.fixOnCooldown = true;
                 this.time.addEvent({
-                    delay: 100,
+                    delay: 100, // fix cooldown
                     callback: () => { this.fixOnCooldown = false; },
                     callbackScope: this
                 });
