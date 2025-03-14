@@ -51,7 +51,7 @@ class Menu extends Phaser.Scene {
         )
         .setOrigin(0.5)
         .setDisplaySize(this.game.config.width, this.game.config.height);
-
+        
         // Background music
         if(!this.sound.get('bgm')) {
             this.bgm = this.sound.add('bgm', { loop: true, volume: 0.10 });
