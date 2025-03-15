@@ -64,22 +64,18 @@ class PlayBase extends Phaser.Scene {
             this.registry.set('globalLives', 3);
         }
         
-        // Set up HUD: score, timer, lives, and high score
+        // Set up HUD: score, timer, high score, and lives (displayed as hearts)
         this.timeRemaining = 60;
         this.scoreText = this.add.text(10, 10, "Score: " + this.score, { fontFamily: 'Arial', fontSize: '32px', color: '#ffffff' });
         this.timerText = this.add.text(630, 10, "Time: 60", { fontFamily: 'Arial', fontSize: '32px', color: '#ffffff' })
             .setOrigin(1, 0);
             
-        // Lives icons
-        this.livesIcons = [];
-        for (let i = 0; i < this.lives; i++) {
-            let icon = this.add.image(40 + (i * 40), 110, 'lives').setScale(0.75);
-            this.livesIcons.push(icon);
-        }
-        
         // High Score from local storage (or 0 if not set)
         let storedHighScore = localStorage.getItem("highScore") || 0;
         this.highScoreText = this.add.text(10, 50, "High Score: " + storedHighScore, { fontFamily: 'Arial', fontSize: '32px', color: '#ffff00' });
+        
+        // Display lives as a text-based heart counter
+        this.livesText = this.add.text(10, 90, "Lives: " + "♥".repeat(this.lives), { fontFamily: 'Arial', fontSize: '32px', color: '#ff0000' });
         
         // Set up brick obstacles
         this.bricks = this.physics.add.group();
@@ -160,7 +156,8 @@ class PlayBase extends Phaser.Scene {
             this.sound.play('bonk', { volume: 0.40 });
             
             this.lives--;
-            this.livesIcons[this.lives].destroy();
+            // Update lives display text
+            this.livesText.setText("Lives: " + "♥".repeat(this.lives));
             brick.destroy();
             // Felix animation
             this.felix.setHit();
@@ -217,7 +214,8 @@ class PlayBase extends Phaser.Scene {
             this.sound.play('bonk', { volume: 0.40 });
             
             this.lives--;
-            this.livesIcons[this.lives].destroy();
+            // Update lives display text
+            this.livesText.setText("Lives: " + "♥".repeat(this.lives));
             duck.destroy();
             this.felix.setHit();
             
