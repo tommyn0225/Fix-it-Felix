@@ -156,6 +156,9 @@ class PlayBase extends Phaser.Scene {
     
     hitByBrick(player, brick) {
         if (!this.gameOver && !this.win) {
+            // Play bonk sound effect at 0.40 volume when hit
+            this.sound.play('bonk', { volume: 0.40 });
+            
             this.lives--;
             this.livesIcons[this.lives].destroy();
             brick.destroy();
@@ -194,6 +197,8 @@ class PlayBase extends Phaser.Scene {
         let startX = -50;
         let duck = new DuckPrefab(this, startX, y);
         this.ducks.add(duck);
+        // Play quack sound effect at 0.40 volume when duck spawns
+        this.sound.play('quack', { volume: 0.40 });
         // Tween duck from left to right
         this.tweens.add({
             targets: duck,
@@ -208,6 +213,9 @@ class PlayBase extends Phaser.Scene {
     
     hitByDuck(player, duck) {
         if (!this.gameOver && !this.win) {
+            // Play bonk sound effect at 0.40 volume when hit
+            this.sound.play('bonk', { volume: 0.40 });
+            
             this.lives--;
             this.livesIcons[this.lives].destroy();
             duck.destroy();
