@@ -70,11 +70,11 @@ class Menu extends Phaser.Scene {
         this.add.text(
             this.game.config.width / 2,
             this.game.config.height - 150,
-            "Move with [W][A][S][D]\nfix windows with [SPACE]",
+            "Move with [W][A][S][D]\nFix windows with [SPACE]\nPress [H] for Help",
             { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', align: 'center' }
         ).setOrigin(0.5);
 
-        // Press Start
+        // Press Start text
         this.add.text(
             this.game.config.width / 2,
             this.game.config.height - 50,
@@ -86,6 +86,12 @@ class Menu extends Phaser.Scene {
         this.input.keyboard.on('keydown-SPACE', () => {
             this.sound.play('buttonClick', { volume: 0.25 });
             this.scene.start("play1Scene");
+        });
+        
+        // Open Help screen when [H] is pressed
+        this.input.keyboard.on('keydown-H', () => {
+            this.sound.play('buttonClick', { volume: 0.25 });
+            this.scene.start("helpScene");
         });
     }
 }

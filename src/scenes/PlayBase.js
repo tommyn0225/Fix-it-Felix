@@ -56,7 +56,7 @@ class PlayBase extends Phaser.Scene {
             this.score = 0;
             this.registry.set('globalScore', 0);
         }
-        // Lives persist if the level was completed. Retries reset lives to 3.
+        // Lives persist if the level was completed. Retries reset lives to 3
         if (this.registry.has('globalLives')) {
             this.lives = this.registry.get('globalLives');
         } else {
@@ -98,7 +98,7 @@ class PlayBase extends Phaser.Scene {
         // Collision detection for bricks hitting the player
         this.physics.add.overlap(this.felix, this.bricks, this.hitByBrick, null, this);
         
-        // Set up duck obstacles ONLY if this is level 3
+        // Set up duck for level 3
         if (this.scene.key === "play3Scene") {
             this.ducks = this.physics.add.group();
             this.duckTimer = this.time.addEvent({
@@ -146,7 +146,7 @@ class PlayBase extends Phaser.Scene {
     }
     
     spawnBrick() {
-        // Spawn a brick in random column above the screen.
+        // Spawn brick in random column
         let col = Phaser.Math.Between(0, this.gridCols - 1);
         let x = this.horizontalMargin + (col + 0.5) * this.cellWidth;
         let y = -20;
@@ -159,7 +159,7 @@ class PlayBase extends Phaser.Scene {
             this.lives--;
             this.livesIcons[this.lives].destroy();
             brick.destroy();
-            // Play hit animation for Felix
+            // Felix animation
             this.felix.setHit();
             if (this.lives <= 0) {
                 // On death, play die animation
@@ -211,6 +211,8 @@ class PlayBase extends Phaser.Scene {
             this.lives--;
             this.livesIcons[this.lives].destroy();
             duck.destroy();
+            this.felix.setHit();
+            
             if (this.lives <= 0) {
                 this.gameOver = true;
                 this.physics.pause();
@@ -223,11 +225,11 @@ class PlayBase extends Phaser.Scene {
     }
     
     update(time, delta) {
-        // Handle end-of-level (win) and game over conditions
+        // Handle win and game over conditions
         if (this.gameOver || this.win) {
             if (this.win) {
                 if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
-                    // Save persistent score and lives before moving to next level
+                    // Save score and lives
                     this.registry.set('globalScore', this.score);
                     this.registry.set('globalLives', this.lives);
                     // Update high score in local storage if needed
@@ -247,7 +249,7 @@ class PlayBase extends Phaser.Scene {
                 }
             } else {
                 if (Phaser.Input.Keyboard.JustDown(this.keys.fix)) {
-                    // On game over retry, reset lives to 3 but keep the persistent score.
+                    // On game over retry, reset lives to 3 but keep score
                     this.registry.set('globalLives', 3);
                     this.scene.restart();
                 }
@@ -312,7 +314,7 @@ class PlayBase extends Phaser.Scene {
             }
             
             if (moved) {
-                // Update grid position.
+                // Update grid position∂
                 this.playerGridPos.row = targetRow;
                 this.playerGridPos.col = targetCol;
                 // Call Felix's move animation based on lastMoveDirection

@@ -8,7 +8,7 @@ FIVE PHASER MAJOR COMPONENTS
     2. text objects (instructions)
     3. animation manager (duck animations)
     4. tween (ralph tween)
-    5. particles (menu brick particles)
+    5. particles 
 
 POLISH, CREATIVITY, TECHNICAL PROWESS (Reasons I think I deserve the points)
     - Polish: Professor Nathan complimented the snappy controls of my game :3
@@ -24,7 +24,7 @@ const config = {
     type: Phaser.AUTO,
     width: 640,
     height: 820,
-    scene: [Menu, PlayBase, Play1, Play2, Play3],
+    scene: [Menu, Help, PlayBase, Play1, Play2, Play3],
     physics: {
         default: 'arcade',
         arcade: {
