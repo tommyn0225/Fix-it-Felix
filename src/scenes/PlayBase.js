@@ -224,6 +224,28 @@ class PlayBase extends Phaser.Scene {
         }
     }
     
+    // New helper method to bounce Felix when hitting a barrier or border
+    bounceFelix(direction) {
+        const bounceDistance = 10; // adjust bounce distance as needed
+        let tweenProps = {};
+        if (direction === 'up') {
+            tweenProps = { y: this.felix.y - bounceDistance };
+        } else if (direction === 'down') {
+            tweenProps = { y: this.felix.y + bounceDistance };
+        } else if (direction === 'left') {
+            tweenProps = { x: this.felix.x - bounceDistance };
+        } else if (direction === 'right') {
+            tweenProps = { x: this.felix.x + bounceDistance };
+        }
+        this.tweens.add({
+            targets: this.felix,
+            ...tweenProps,
+            duration: 100,
+            yoyo: true,
+            ease: 'Power1'
+        });
+    }
+    
     update(time, delta) {
         // Handle win and game over conditions
         if (this.gameOver || this.win) {
@@ -260,7 +282,9 @@ class PlayBase extends Phaser.Scene {
             return;
         }
         
-        // Handle grid movement with barrier restrictions
+        // Handle grid movement with barrier and border restrictions
+        // Use a bounceDuration matching the full bounce tween cycle (forward + yoyo)
+        const bounceDuration = 200;
         if (!this.moveOnCooldown) {
             let moved = false;
             let targetRow = this.playerGridPos.row;
@@ -269,55 +293,114 @@ class PlayBase extends Phaser.Scene {
             // Get the current window from the grid
             let currentWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === this.playerGridPos.col);
             
-            // Up movement: block if the target window is a WindowPlanter
-            if (Phaser.Input.Keyboard.JustDown(this.keys.up) && this.playerGridPos.row > 0) {
-                targetRow = this.playerGridPos.row - 1;
-                let targetWindow = this.windows.find(win => win.row === targetRow && win.col === this.playerGridPos.col);
-                if (targetWindow instanceof WindowPlanter) {
-                    // Block upward movement due to planter barrier
+            // Up movement
+            if (Phaser.Input.Keyboard.JustDown(this.keys.up)) {
+                if (this.playerGridPos.row > 0) {
+                    targetRow = this.playerGridPos.row - 1;
+                    let targetWindow = this.windows.find(win => win.row === targetRow && win.col === this.playerGridPos.col);
+                    if (targetWindow instanceof WindowPlanter) {
+                        this.bounceFelix('up');
+                        this.moveOnCooldown = true;
+                        this.time.addEvent({
+                            delay: bounceDuration,
+                            callback: () => { this.moveOnCooldown = false; }
+                        });
+                    } else {
+                        this.lastMoveDirection = 'up';
+                        moved = true;
+                    }
                 } else {
-                    this.lastMoveDirection = 'up';
-                    moved = true;
+                    // At top border
+                    this.bounceFelix('up');
+                    this.moveOnCooldown = true;
+                    this.time.addEvent({
+                        delay: bounceDuration,
+                        callback: () => { this.moveOnCooldown = false; }
+                    });
                 }
             }
-            // Down movement: block if the current window is a WindowPlanter
-            else if (Phaser.Input.Keyboard.JustDown(this.keys.down) && this.playerGridPos.row < this.gridRows - 1) {
-                if (currentWindow instanceof WindowPlanter) {
-                    // Block downward movement due to planter barrier
+            // Down movement
+            else if (Phaser.Input.Keyboard.JustDown(this.keys.down)) {
+                if (this.playerGridPos.row < this.gridRows - 1) {
+                    if (currentWindow instanceof WindowPlanter) {
+                        this.bounceFelix('down');
+                        this.moveOnCooldown = true;
+                        this.time.addEvent({
+                            delay: bounceDuration,
+                            callback: () => { this.moveOnCooldown = false; }
+                        });
+                    } else {
+                        targetRow = this.playerGridPos.row + 1;
+                        this.lastMoveDirection = 'down';
+                        moved = true;
+                    }
                 } else {
-                    targetRow = this.playerGridPos.row + 1;
-                    this.lastMoveDirection = 'down';
-                    moved = true;
+                    // At bottom border
+                    this.bounceFelix('down');
+                    this.moveOnCooldown = true;
+                    this.time.addEvent({
+                        delay: bounceDuration,
+                        callback: () => { this.moveOnCooldown = false; }
+                    });
                 }
             }
-            // Left movement: block if current OR target window is a WindowCover
-            else if (Phaser.Input.Keyboard.JustDown(this.keys.left) && this.playerGridPos.col > 0) {
-                targetCol = this.playerGridPos.col - 1;
-                let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
-                if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
-                    // Block leftward movement due to cover barrier
+            // Left movement
+            else if (Phaser.Input.Keyboard.JustDown(this.keys.left)) {
+                if (this.playerGridPos.col > 0) {
+                    targetCol = this.playerGridPos.col - 1;
+                    let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
+                    if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
+                        this.bounceFelix('left');
+                        this.moveOnCooldown = true;
+                        this.time.addEvent({
+                            delay: bounceDuration,
+                            callback: () => { this.moveOnCooldown = false; }
+                        });
+                    } else {
+                        this.lastMoveDirection = 'left';
+                        moved = true;
+                    }
                 } else {
-                    this.lastMoveDirection = 'left';
-                    moved = true;
+                    // At left border
+                    this.bounceFelix('left');
+                    this.moveOnCooldown = true;
+                    this.time.addEvent({
+                        delay: bounceDuration,
+                        callback: () => { this.moveOnCooldown = false; }
+                    });
                 }
             }
-            // Right movement: block if current OR target window is a WindowCover
-            else if (Phaser.Input.Keyboard.JustDown(this.keys.right) && this.playerGridPos.col < this.gridCols - 1) {
-                targetCol = this.playerGridPos.col + 1;
-                let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
-                if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
-                    // Block rightward movement due to cover barrier
+            // Right movement
+            else if (Phaser.Input.Keyboard.JustDown(this.keys.right)) {
+                if (this.playerGridPos.col < this.gridCols - 1) {
+                    targetCol = this.playerGridPos.col + 1;
+                    let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
+                    if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
+                        this.bounceFelix('right');
+                        this.moveOnCooldown = true;
+                        this.time.addEvent({
+                            delay: bounceDuration,
+                            callback: () => { this.moveOnCooldown = false; }
+                        });
+                    } else {
+                        this.lastMoveDirection = 'right';
+                        moved = true;
+                    }
                 } else {
-                    this.lastMoveDirection = 'right';
-                    moved = true;
+                    // At right border
+                    this.bounceFelix('right');
+                    this.moveOnCooldown = true;
+                    this.time.addEvent({
+                        delay: bounceDuration,
+                        callback: () => { this.moveOnCooldown = false; }
+                    });
                 }
             }
             
             if (moved) {
-                // Update grid position∂
+                // Update grid position and animate move
                 this.playerGridPos.row = targetRow;
                 this.playerGridPos.col = targetCol;
-                // Call Felix's move animation based on lastMoveDirection
                 this.felix.setMove(this.lastMoveDirection);
                 this.moveOnCooldown = true;
                 let newX = this.horizontalMargin + (this.playerGridPos.col + 0.5) * this.cellWidth;
