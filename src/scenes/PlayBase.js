@@ -230,28 +230,6 @@ class PlayBase extends Phaser.Scene {
         }
     }
     
-    // New helper method to bounce Felix when hitting a barrier or border
-    bounceFelix(direction) {
-        const bounceDistance = 10; // adjust bounce distance as needed
-        let tweenProps = {};
-        if (direction === 'up') {
-            tweenProps = { y: this.felix.y - bounceDistance };
-        } else if (direction === 'down') {
-            tweenProps = { y: this.felix.y + bounceDistance };
-        } else if (direction === 'left') {
-            tweenProps = { x: this.felix.x - bounceDistance };
-        } else if (direction === 'right') {
-            tweenProps = { x: this.felix.x + bounceDistance };
-        }
-        this.tweens.add({
-            targets: this.felix,
-            ...tweenProps,
-            duration: 100,
-            yoyo: true,
-            ease: 'Power1'
-        });
-    }
-    
     update(time, delta) {
         // Handle win and game over conditions
         if (this.gameOver || this.win) {
@@ -305,7 +283,7 @@ class PlayBase extends Phaser.Scene {
                     targetRow = this.playerGridPos.row - 1;
                     let targetWindow = this.windows.find(win => win.row === targetRow && win.col === this.playerGridPos.col);
                     if (targetWindow instanceof WindowPlanter) {
-                        this.bounceFelix('up');
+                        this.felix.bounce('up');
                         this.moveOnCooldown = true;
                         this.time.addEvent({
                             delay: bounceDuration,
@@ -317,7 +295,7 @@ class PlayBase extends Phaser.Scene {
                     }
                 } else {
                     // At top border
-                    this.bounceFelix('up');
+                    this.felix.bounce('up');
                     this.moveOnCooldown = true;
                     this.time.addEvent({
                         delay: bounceDuration,
@@ -329,7 +307,7 @@ class PlayBase extends Phaser.Scene {
             else if (Phaser.Input.Keyboard.JustDown(this.keys.down)) {
                 if (this.playerGridPos.row < this.gridRows - 1) {
                     if (currentWindow instanceof WindowPlanter) {
-                        this.bounceFelix('down');
+                        this.felix.bounce('down');
                         this.moveOnCooldown = true;
                         this.time.addEvent({
                             delay: bounceDuration,
@@ -342,7 +320,7 @@ class PlayBase extends Phaser.Scene {
                     }
                 } else {
                     // At bottom border
-                    this.bounceFelix('down');
+                    this.felix.bounce('down');
                     this.moveOnCooldown = true;
                     this.time.addEvent({
                         delay: bounceDuration,
@@ -356,7 +334,7 @@ class PlayBase extends Phaser.Scene {
                     targetCol = this.playerGridPos.col - 1;
                     let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
                     if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
-                        this.bounceFelix('left');
+                        this.felix.bounce('left');
                         this.moveOnCooldown = true;
                         this.time.addEvent({
                             delay: bounceDuration,
@@ -368,7 +346,7 @@ class PlayBase extends Phaser.Scene {
                     }
                 } else {
                     // At left border
-                    this.bounceFelix('left');
+                    this.felix.bounce('left');
                     this.moveOnCooldown = true;
                     this.time.addEvent({
                         delay: bounceDuration,
@@ -382,7 +360,7 @@ class PlayBase extends Phaser.Scene {
                     targetCol = this.playerGridPos.col + 1;
                     let targetWindow = this.windows.find(win => win.row === this.playerGridPos.row && win.col === targetCol);
                     if (currentWindow instanceof WindowCover || targetWindow instanceof WindowCover) {
-                        this.bounceFelix('right');
+                        this.felix.bounce('right');
                         this.moveOnCooldown = true;
                         this.time.addEvent({
                             delay: bounceDuration,
@@ -394,7 +372,7 @@ class PlayBase extends Phaser.Scene {
                     }
                 } else {
                     // At right border
-                    this.bounceFelix('right');
+                    this.felix.bounce('right');
                     this.moveOnCooldown = true;
                     this.time.addEvent({
                         delay: bounceDuration,

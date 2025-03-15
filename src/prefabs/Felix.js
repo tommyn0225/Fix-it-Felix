@@ -68,4 +68,25 @@ class Felix extends Phaser.Physics.Arcade.Sprite {
         this.dead = false;
         this.setIdle();
     }
+    
+    bounce(direction) {
+        const bounceDistance = 10;
+        let tweenProps = {};
+        if (direction === 'up') {
+            tweenProps = { y: this.y - bounceDistance };
+        } else if (direction === 'down') {
+            tweenProps = { y: this.y + bounceDistance };
+        } else if (direction === 'left') {
+            tweenProps = { x: this.x - bounceDistance };
+        } else if (direction === 'right') {
+            tweenProps = { x: this.x + bounceDistance };
+        }
+        this.scene.tweens.add({
+            targets: this,
+            ...tweenProps,
+            duration: 100,
+            yoyo: true,
+            ease: 'Power1'
+        });
+    }
 }
