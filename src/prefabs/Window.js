@@ -6,7 +6,7 @@ class WindowPrefab extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
         this.body.setAllowGravity(false);
         this.body.setImmovable(true);
-        this.setScale(1.5);
+        this.setScale(2.5);
 
         // The window needs to be fixed twice
         this.fixCount = 0;
