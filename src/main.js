@@ -16,7 +16,10 @@ POLISH, CREATIVITY, TECHNICAL PROWESS (Reasons I think I deserve the points)
     - Technical: I added a number of new obstacles that were not present in the game shown in the movie.
     I added a high score that is stored in your local memory.
 
-
+CREDITS
+fully created by Tommy Nguyen BESIDES:
+music: https://youtu.be/l7SwiFWOQqM?si=EC3FM59QqzNJErTS
+sfx: https://mixkit.co/
 
 
 */
