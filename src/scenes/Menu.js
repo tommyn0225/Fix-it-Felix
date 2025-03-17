@@ -4,12 +4,21 @@ class Menu extends Phaser.Scene {
         super("menuScene");
     }
 
+    // 1) Define speed constants
+    init() {
+        this.SPEED = 300;
+        this.SPEEDMIN = 50;
+        this.SPEEDMAX = 800;
+    }
+
     preload() {
-        // Load assets
+        // Existing loads
         this.load.image('building', './assets/building.png');
         this.load.image('titlescreen', './assets/titlescreen.png');
         this.load.image('brick', './assets/brick.png');
-        this.load.image('lives', '/assets/lives.png');
+        this.load.image('lives', './assets/lives.png');
+        this.load.image('smoke', './assets/5x5_white.png');
+        this.load.image('titlebg', './assets/titlebg.png');
 
         this.load.audio('bgm', './assets/Powerup!.mp3');
         this.load.audio('bonk', './assets/bonk.mp3');
@@ -44,7 +53,7 @@ class Menu extends Phaser.Scene {
     }
 
     create() {
-        // Titlescreen background (fills the screen)
+        // Titlescreen background
         this.add.image(
             this.game.config.width / 2,
             this.game.config.height / 2,
@@ -54,45 +63,49 @@ class Menu extends Phaser.Scene {
         .setDisplaySize(this.game.config.width, this.game.config.height);
         
         // Background music
-        if(!this.sound.get('bgm')) {
+        if (!this.sound.get('bgm')) {
             this.bgm = this.sound.add('bgm', { loop: true, volume: 0.10 });
             this.bgm.play();
         }
 
-        // Credits text
-        this.add.text(
-            this.game.config.width / 2,
-            this.game.config.height - 300,
-            "Assets and code by Tommy Nguyen\nSFX: mixkit\nBGM: Powerup! Jeremy Blake",
-            { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', align: 'center' }
-        ).setOrigin(0.5);
+        // Define center values
+        const centerX = this.game.config.width / 2;
+        const centerY = this.game.config.height / 2;
 
-        // Instructions text
-        this.add.text(
-            this.game.config.width / 2,
-            this.game.config.height - 150,
-            "Move with [W][A][S][D]\nFix windows with [SPACE]\nPress [H] for Help",
-            { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', align: 'center' }
-        ).setOrigin(0.5);
+        this.add.image(centerX, centerY + 150, 'titlebg').setOrigin(0.5);
 
-        // Press Start text
+        // UI Text
         this.add.text(
-            this.game.config.width / 2,
-            this.game.config.height - 50,
-            "Press [SPACE] to start game",
+            centerX,
+            this.game.config.height - 100,
+            "Assets and code by Tommy Nguyen\nSFX: mixkit\nBGM: Powerup! Jeremy Blake\n\nPress [H] for Help\nPress [SPACE] to start game",
             { fontFamily: 'Arial', fontSize: '24px', color: '#ffffff', align: 'center' }
         ).setOrigin(0.5);
 
         // Start the Play scene when SPACE is pressed
         this.input.keyboard.on('keydown-SPACE', () => {
             this.sound.play('buttonClick', { volume: 0.25 });
+            // Reset lives and score before starting the game
+            this.registry.set('globalScore', 0);
+            this.registry.set('globalLives', 3);
             this.scene.start("play1Scene");
         });
+        
         
         // Open Help screen when [H] is pressed
         this.input.keyboard.on('keydown-H', () => {
             this.sound.play('buttonClick', { volume: 0.25 });
             this.scene.start("helpScene");
+        });
+
+        // Tree cut particles
+        this.add.particles(centerX, centerY + 175, 'smoke', {
+            lifespan: 800,
+            quantity: 15,
+            frequency: 250,
+            speed: { min: 100, max: 300 },
+            angle: { min: 0, max: 360 },
+            rotate: { min: 0, max: 360 }
         });
     }
 }
