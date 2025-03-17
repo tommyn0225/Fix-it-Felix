@@ -108,6 +108,26 @@ const GRID_CONFIG = {
       this.livesText = this.add.text(10, 90, `Lives: ${"♥".repeat(this.lives)}`, { fontFamily: 'Arial', fontSize: '32px', color: '#ff0000' });
     }
   
+    // Updates the score display and high score if needed.
+    updateScore() {
+      this.scoreText.setText(`Score: ${this.score}`);
+      const storedHighScore = localStorage.getItem("highScore") || 0;
+      if (this.score > storedHighScore) {
+        localStorage.setItem("highScore", this.score);
+        this.highScoreText.setText(`High Score: ${this.score}`);
+      }
+    }
+  
+    // Updates the lives display.
+    updateLives() {
+      this.livesText.setText(`Lives: ${"♥".repeat(this.lives)}`);
+    }
+  
+    // Updates the timer display.
+    updateTimerDisplay() {
+      this.timerText.setText(`Time: ${this.timeRemaining}`);
+    }
+  
     // Sets up the game timer.
     setupTimers() {
       this.time.addEvent({
@@ -201,8 +221,12 @@ const GRID_CONFIG = {
     handleObstacleHit(player, obstacle) {
       if (this.gameOver || this.win) return;
       this.sound.play('bonk', { volume: 0.40 });
+      // Subtract 200 from score on damage.
+      this.score = Math.max(0, this.score - 200);
+      this.updateScore();
+      
       this.lives--;
-      this.livesText.setText(`Lives: ${"♥".repeat(this.lives)}`);
+      this.updateLives();
       obstacle.destroy();
       this.felix.setHit();
       if (this.lives <= 0) {
@@ -214,7 +238,7 @@ const GRID_CONFIG = {
     updateTimer() {
       if (this.gameOver || this.win) return;
       this.timeRemaining--;
-      this.timerText.setText(`Time: ${this.timeRemaining}`);
+      this.updateTimerDisplay();
       if (this.timeRemaining <= 0) {
         this.endGame("Time Up!\nPress SPACE to Replay\nPress B for Menu", true);
       }
@@ -338,12 +362,7 @@ const GRID_CONFIG = {
         currentWindow.fix();
         this.sound.play('hammer', { volume: 0.25 });
         this.score += 100;
-        this.scoreText.setText(`Score: ${this.score}`);
-        const storedHighScore = localStorage.getItem("highScore") || 0;
-        if (this.score > storedHighScore) {
-          localStorage.setItem("highScore", this.score);
-          this.highScoreText.setText(`High Score: ${this.score}`);
-        }
+        this.updateScore();
         this.felix.setFix();
       }
     }
@@ -363,7 +382,7 @@ const GRID_CONFIG = {
       this.physics.pause();
       const bonus = this.timeRemaining * 100;
       this.score += bonus;
-      this.scoreText.setText(`Score: ${this.score}`);
+      this.updateScore();
       this.registry.set('globalScore', this.score);
       this.registry.set('globalLives', this.lives);
       const storedHighScore = localStorage.getItem("highScore") || 0;
